@@ -27,6 +27,7 @@ def BeepSound():
 	pygame.mixer.music.play()
 
 def UserInput():
+	global timer_seconds
 	user_value = simpledialog.askinteger("Adjust Timer", "Enter a time (1-60 seconds):",
                                          parent=root,
                                          minvalue=1)
@@ -66,8 +67,17 @@ def ChooseDeck():
         messagebox.showwarning("Empty Deck", "No matching .jpg and .txt pairs found!")
 
 def BeginSim():
-	global current_question_index, image_label
-	   
+	global current_question_index, image_label, question_keys
+	global current_deck
+	if not current_deck:
+		messagebox.showerror("Error, no deck selected")
+		return 
+	if not question_keys:
+		question_keys=list(current_deck.keys())
+	if current_question_index < len(question_keys):
+		key=question_keys[current_question_index]
+		image_path=current_deck[key]["image"] 
+ 
 	if current_question_index < len(question_keys):
 		key = question_keys[current_question_index]
 		image_path = current_deck[key]["image"]
@@ -97,10 +107,15 @@ def BeginSim():
 		    image_label = None
 
 def transition_to_next():
-    global current_question_index
+    global current_question_index, image_label
     BeepSound() # Call your existing function
     current_question_index += 1
-    show_next_question()
+
+    if image_label:
+        image_label.config(image='') #clears the picture
+        image_label.image= None
+
+    BeginSim()
 
 
 
