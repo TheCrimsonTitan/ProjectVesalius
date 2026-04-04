@@ -11,6 +11,7 @@ current_deck={}
 timer_seconds=5
 current_question_index=0
 question_keys=[]
+image_window=None
 image_label=None
 
 
@@ -66,6 +67,22 @@ def ChooseDeck():
     if len(current_deck) == 0:
         messagebox.showwarning("Empty Deck", "No matching .jpg and .txt pairs found!")
 
+def update_image_window(photo,key):
+	global image_window, image_label
+
+	if image_window is None or not tk.Toplevel.winfo_exists(image_window):
+		image_window = tk.Toplevel(root)
+		image_window.title("Current Station")
+		image_window.geometry("800x600")
+		image_label = tk.Label(image_window)
+		image_label.pack(expand=True, fill="both")
+
+	image_window.title(f"Station: {key}")
+	image_label.config(image=photo)
+	image_label.image = photo
+
+
+
 def BeginSim():
 	global current_question_index, image_label, question_keys
 	global current_deck
@@ -86,14 +103,8 @@ def BeginSim():
 		img = Image.open(image_path)
 		img = img.resize((600, 400)) # Resize to fit your 800x600 window
 		photo = ImageTk.PhotoImage(img)
-		
-		if image_label is None:
-			image_label = tk.Label(root, image=photo)
-			image_label.image = photo # Keep a reference!
-			image_label.pack(pady=20)
-		else:
-			image_label.config(image=photo)
-			image_label.image = photo
+
+		update_image_window(photo, key)		
 
 		print(f"Showing: {key}. Station ends in {timer_seconds}s")
 		
@@ -102,6 +113,7 @@ def BeginSim():
 		root.after(timer_seconds * 1000, transition_to_next)
 	else:
 		messagebox.showinfo("Finished", "Practical Simulation Complete!")
+		current_question_index=0
 		if image_label:
 		    image_label.destroy()
 		    image_label = None
